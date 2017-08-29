@@ -1,0 +1,116 @@
+<head>
+  <meta charset="UTF-8" />
+  <title>React learning</title>
+  <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+  <style>
+    body {
+        padding-top: 15px;
+        background-color: #FFEBFA;
+    }
+    form-group{
+
+    }
+  </style>
+</head>
+
+<body>
+  <div id="content"></div>
+  <!--ここからjsx　why dont have babel & webpack??? -->
+
+  <script type="text/jsx">
+// テーブルの各行となるコンポーネント
+var Rows = React.createClass({
+    onDataRemove: function(pIndex) {
+        this.props.onDataRemove({ index: pIndex });
+    },
+    render: function() {
+        // 各行のタグを連結
+        var rows = this.props.data.map(function(e, idx) {
+            return (
+                <tr key={e.id}>
+                    <td>{e.title}</td>
+                    <td>{e.content}</td>
+                    <td>
+                        <button onClick={this.onDataRemove.bind(this, idx)} className="btn btn-danger">
+                            <i className="glyphicon glyphicon-trash" />
+                        </button>
+                    </td>
+                </tr>
+            );
+        }.bind(this));
+        // tableタグを作成
+        return (
+            <table className="table table-striped">
+                <thead>
+                    <th>Name</th>
+                    <th>Join the discussion......</th>
+                    <th> </th>
+                </thead>
+                <tbody>
+                    {rows}
+                </tbody>
+            </table>
+        );
+    }
+});
+// 入力フォームコンポーネント
+var Form = React.createClass({
+    onAddButtonClick: function(e) {
+        // React.findDOMNode関数で入力項目を得ることが出来る
+        var title = React.findDOMNode(this.refs.title).value;
+        var content = React.findDOMNode(this.refs.content).value;
+
+        // データ追加をイベント通知
+        this.props.onDataAdd({ id: (new Date()).getTime(), title: title, content: content });
+
+        e.preventDefault(); // デフォルトの動作をキャンセル
+    },
+    render: function() {
+        return (
+            <form>
+                <div className="form-group">
+                    <label htmlFor="title">Name</label>
+                    <input ref="title" type="text" className="form-control" id="title" />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="content">Join the discussion......</label>
+                    <textarea ref="content" className="form-control" id="content" />
+                </div>
+                <button onClick={this.onAddButtonClick} className="btn btn-primary">Push</button>
+            </form>
+        );
+    }
+});
+// ルートコンポーネント
+var Root = React.createClass({
+    getInitialState: function() {
+        return {
+            data: []
+        };
+    },
+    handleDataAdd: function(e) {
+        var data = this.state.data;
+        data.push(e);
+        this.setState({ data: data });
+    },
+    handleDataRemove: function(e) {
+        var data = this.state.data;
+        data.splice(e.index, 1);
+        this.setState({ data: data });
+    },
+    render: function() {
+        return (
+            <div className="container">
+                <Form onDataAdd={this.handleDataAdd} />
+                <hr/>
+                <Rows data={this.state.data} onDataRemove={this.handleDataRemove} />
+            </div>
+        );
+    }
+});
+// ルートコンポーネントを画面に描画
+React.render(<Root />, document.getElementById('content'));
+  </script>
+</body>
